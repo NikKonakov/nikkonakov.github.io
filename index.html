@@ -1,50 +1,366 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raj's Robot Rentals</title>
-    <!-- style sheets -->
-    <link rel="stylesheet" href="styles/reset.css">
-    <link rel="stylesheet" href="styles/styles.css">
-    <!-- web fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nikita Konakov — Software Developer in Calgary</title>
+<meta name="description" content="Nikita Konakov is a software developer in Calgary who builds mobile and web apps with React Native, Next.js and TypeScript.">
+<meta name="theme-color" content="#070E1B">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="https://nikkonakov.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nikkonakov.github.io/">
+<meta property="og:title" content="Nikita Konakov — Software Developer">
+<meta property="og:description" content="Mobile and web apps with React Native, Next.js and TypeScript. Based in Calgary, Alberta.">
+<meta property="og:image" content="https://nikkonakov.github.io/assets/img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/instrument-serif-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/inter-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
+<script>
+  // Decide before the first paint: scripts are on, and should the effects stay calm?
+  (function () {
+    var root = document.documentElement, saved = null;
+    root.classList.add('js');
+    try { saved = localStorage.getItem('aurora-effects'); } catch (e) {}
+    if (saved === 'off' || (saved !== 'on' && window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) root.classList.add('calm');
+    // If the scripts never arrive, show everything instead of waiting for reveals.
+    setTimeout(function () { if (!window.siteReady) root.classList.remove('js'); }, 4000);
+  })();
+</script>
+<link rel="stylesheet" href="assets/css/site.css">
+<script type="module" src="assets/js/main.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Nikita Konakov",
+  "jobTitle": "Software Developer",
+  "url": "https://nikkonakov.github.io/",
+  "address": { "@type": "PostalAddress", "addressLocality": "Calgary", "addressRegion": "AB", "addressCountry": "CA" },
+  "alumniOf": { "@type": "CollegeOrUniversity", "name": "Southern Alberta Institute of Technology" },
+  "sameAs": ["https://github.com/NikKonakov", "https://www.linkedin.com/in/nikkonakov/"]
+}
+</script>
 </head>
-
 <body>
-    <!-- javascript -->
-    <script src="scripts/scripts.js"></script>
-    <header class="flex">
-        <img src="images/robot.jpg" alt="photo of a white plastic robot with
-                a black background">
-        <h1>Raj's Robot Rentals</h1>
-    </header>
-    <main>
-        <h2>Quote Generator</h2>
-        <p>We have 2 models available for booking:</p>
-        <ul>
-            <li>Model XYZ: $100 per day</li>
-            <li>Model CPRG: $213 per day</li>
-        </ul>
-        <p>The cost to book <span id="model-text">Model XYZ</span> for <span id="duration-text">0</span> days is $<span
-                id="calculated-cost">0.00</span>.</p>
-        <div class="flex">
-            <p id="model-button">Switch Model</p>
-            <p id="duration-button">Change Duration</p>
-        </div>
-        <p>Thank you for your interest in booking a 'bot!</p>
-    </main>
-    <footer>
-        <p>Photo by <a
-                href="https://unsplash.com/@possessedphotography?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Possessed
-                Photography</a> on <a
-                href="https://unsplash.com/s/photos/robot-face?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
-        </p>
-    </footer>
-    <script src="scripts/scripts.js"></script>
-</body>
+<a class="skip" href="#main">Skip to content</a>
 
+<!-- Living map behind everything below the hero -->
+<div class="backdrop" aria-hidden="true">
+  <canvas class="topo"></canvas>
+</div>
+
+<!-- Sparks are drawn here, above the page -->
+<canvas class="sparks" aria-hidden="true"></canvas>
+
+<!-- Filters for the liquid glass edges are added here by glass.js -->
+<svg class="defs" aria-hidden="true" focusable="false" width="0" height="0"></svg>
+
+<header class="nav">
+  <nav class="nav-pill glass" data-spot data-liquid="clear" aria-label="Primary">
+    <a class="brand" href="#top" aria-label="Nikita Konakov, back to top">NK</a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#route">Route</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="fx-toggle" type="button" aria-pressed="true">
+      <span class="led" aria-hidden="true"></span>
+      <span class="fx-label">Aurora</span>
+    </button>
+  </nav>
+</header>
+
+<main id="main">
+
+<section class="hero" id="top">
+  <div class="sky" aria-hidden="true">
+    <canvas class="stars"></canvas>
+    <canvas class="aurora"></canvas>
+  </div>
+
+  <div class="scene" aria-hidden="true">
+    <svg class="layer layer-far" viewBox="0 0 1440 320" preserveAspectRatio="xMaxYMax slice" data-depth="0.25">
+      <path class="ridge-far" d="M0,320 L0,230 L60,208 L120,222 L190,176 L250,202 L320,150 L380,186 L450,164 L520,208 L600,140 L660,182 L740,128 L800,170 L880,146 L950,194 L1030,158 L1100,200 L1180,144 L1250,186 L1330,162 L1400,198 L1440,180 L1440,320 Z"/>
+      <g class="snow">
+        <polygon points="190,176 214,186 203,185 193,194 181,188 162,194"/>
+        <polygon points="320,150 344,164 331,162 323,172 310,164 292,171"/>
+        <polygon points="600,140 624,157 612,155 603,166 590,158 568,167"/>
+        <polygon points="740,128 764,145 752,143 743,154 730,146 708,150"/>
+        <polygon points="880,146 908,165 896,162 884,170 870,160 848,156"/>
+        <polygon points="1030,158 1058,175 1046,172 1034,180 1020,172 998,172"/>
+        <polygon points="1180,144 1208,161 1195,158 1184,169 1170,161 1148,166"/>
+        <polygon points="1330,162 1358,176 1346,174 1335,182 1321,174 1298,172"/>
+      </g>
+      <polyline class="rim" points="0,230 60,208 120,222 190,176 250,202 320,150 380,186 450,164 520,208 600,140 660,182 740,128 800,170 880,146 950,194 1030,158 1100,200 1180,144 1250,186 1330,162 1400,198 1440,180"/>
+    </svg>
+    <svg class="layer layer-mid" viewBox="0 0 1440 320" preserveAspectRatio="xMaxYMax slice" data-depth="0.55">
+      <path class="ridge-mid" d="M0,320 L0,264 L80,240 L150,258 L230,218 L300,246 L390,208 L470,242 L560,222 L640,254 L730,212 L820,248 L900,226 L990,260 L1080,220 L1160,252 L1250,230 L1340,258 L1440,232 L1440,320 Z"/>
+    </svg>
+    <svg class="layer layer-near" viewBox="0 0 1440 320" preserveAspectRatio="xMaxYMax slice" data-depth="1">
+      <defs>
+        <path id="pine" d="M10,0 L16,14 L13,14 L18,26 L14,26 L20,40 L11.5,40 L11.5,48 L8.5,48 L8.5,40 L0,40 L6,26 L2,26 L7,14 L4,14 Z"/>
+        <radialGradient id="lampGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="#FFD9A3" stop-opacity="0.55"/>
+          <stop offset="0.35" stop-color="#FFC27A" stop-opacity="0.18"/>
+          <stop offset="1" stop-color="#FFC27A" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <g class="pines">
+        <use href="#pine" transform="translate(28,229.7) scale(1.2)"/>
+        <use href="#pine" transform="translate(67,243.7) scale(0.8)"/>
+        <use href="#pine" transform="translate(135,212.8) scale(1.5)"/>
+        <use href="#pine" transform="translate(291,234.6) scale(0.9)"/>
+        <use href="#pine" transform="translate(317,210.2) scale(1.3)"/>
+        <use href="#pine" transform="translate(358,240) scale(0.7)"/>
+        <use href="#pine" transform="translate(529,227.6) scale(1.1)"/>
+        <use href="#pine" transform="translate(559,195.6) scale(1.7)"/>
+        <use href="#pine" transform="translate(601,234) scale(0.9)"/>
+        <use href="#pine" transform="translate(789,232.4) scale(1.1)"/>
+        <use href="#pine" transform="translate(821,213.7) scale(1.4)"/>
+        <use href="#pine" transform="translate(1247,251.7) scale(0.8)"/>
+        <use href="#pine" transform="translate(1269,235.4) scale(1.1)"/>
+        <use href="#pine" transform="translate(1326,225.3) scale(1.2)"/>
+        <use href="#pine" transform="translate(1387,245.6) scale(0.8)"/>
+      </g>
+      <g class="wires">
+        <path d="M1094,258 Q1106,252 1120,239 Q1167,253 1215,251 Q1262,258 1310,247 Q1357,256 1405,248 Q1425,254 1444,250"/>
+        <path class="pole" d="M1120,277 V237 M1113,241 H1127"/>
+        <path class="pole" d="M1215,289 V249 M1208,253 H1222"/>
+        <path class="pole" d="M1310,285 V245 M1303,249 H1317"/>
+        <path class="pole" d="M1405,286 V246 M1398,250 H1412"/>
+        <circle class="emitter" cx="1120" cy="239" r="1.4"/>
+        <circle class="emitter" cx="1215" cy="251" r="1.4"/>
+        <circle class="emitter" cx="1310" cy="247" r="1.4"/>
+      </g>
+      <path class="ridge-near" d="M0,320 L0,290 L110,276 L220,292 L340,268 L460,288 L590,272 L720,294 L850,276 L980,292 L1110,274 L1240,290 L1360,278 L1440,288 L1440,320 Z"/>
+      <g class="cabin">
+        <circle class="lamp-glow" cx="1052" cy="271" r="58" fill="url(#lampGlow)"/>
+        <rect class="cabin-body" x="1038" y="258" width="50" height="30"/>
+        <rect class="cabin-body" x="1076" y="238" width="6" height="14"/>
+        <path class="cabin-roof" d="M1029,261 L1063,238 L1097,261 L1090,261 L1063,243 L1036,261 Z"/>
+        <path class="cabin-snow" d="M1029,261 L1063,238 L1097,261"/>
+        <rect class="cabin-window" x="1047" y="266" width="11" height="10"/>
+        <path class="cabin-frame" d="M1052.5,266 V276 M1047,271 H1058"/>
+        <rect class="cabin-door" x="1068" y="267" width="9" height="20"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="wrap hero-copy">
+    <p class="eyebrow rise" style="--d: .05s">Software Developer · Calgary, Alberta</p>
+    <h1 class="rise" style="--d: .15s">Nikita Konakov</h1>
+    <p class="lead rise" style="--d: .3s">I build mobile and web apps with React Native, Next.js and TypeScript.</p>
+    <div class="actions rise" style="--d: .45s">
+      <a class="btn btn-primary" href="#work">See my work</a>
+      <a class="btn glass" href="https://github.com/NikKonakov" data-spot data-liquid="clear">GitHub
+        <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg>
+      </a>
+    </div>
+    <p class="aurora-note rise" style="--d: .6s"><span class="led" aria-hidden="true"></span>Aurora overhead. Lights may flicker.</p>
+  </div>
+</section>
+
+<section class="section" id="about">
+  <div class="wrap">
+    <header class="section-head" data-reveal>
+      <p class="eyebrow">About</p>
+      <h2>I build the app, launch it, and train the people who run it.</h2>
+    </header>
+    <div class="about-grid">
+      <div class="about-text" data-reveal>
+        <p>I'm a software developer in Calgary. I finished the Software Development diploma at SAIT in December 2025.</p>
+        <p>My main project so far is TrackPeloton, a fitness tracking app for athletes and coaches. I designed its architecture and Firebase backend, and wrote more than 60% of the code.</p>
+        <p>I have also put learning platforms, a library system and a school website into production for small organizations, then trained the staff to run them.</p>
+      </div>
+      <div class="glass panel skills" data-spot data-liquid data-reveal>
+        <h3 class="panel-title">Toolbox</h3>
+        <dl class="skill-list">
+          <div><dt>Languages</dt><dd><span class="chip">JavaScript / TypeScript</span><span class="chip">Python</span><span class="chip">C#</span><span class="chip">Java</span><span class="chip">SQL</span></dd></div>
+          <div><dt>Frontend</dt><dd><span class="chip">React</span><span class="chip">React Native</span><span class="chip">Next.js</span><span class="chip">Expo</span><span class="chip">Tailwind CSS</span><span class="chip">NativeWind</span></dd></div>
+          <div><dt>Backend</dt><dd><span class="chip">Firebase Auth</span><span class="chip">Firestore</span><span class="chip">Cloud Functions</span><span class="chip">SQL</span><span class="chip">Database design</span></dd></div>
+          <div><dt>Tools</dt><dd><span class="chip">Git / GitHub</span><span class="chip">Docker</span><span class="chip">CI/CD</span><span class="chip">Expo Router</span><span class="chip">REST APIs</span></dd></div>
+          <div><dt>Practices</dt><dd><span class="chip">OOP</span><span class="chip">Design patterns</span><span class="chip">Jest</span><span class="chip">JUnit</span><span class="chip">Agile / Scrum</span><span class="chip">UML</span></dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="work">
+  <div class="wrap">
+    <header class="section-head" data-reveal>
+      <p class="eyebrow">Work</p>
+      <h2>Selected projects</h2>
+    </header>
+
+    <div data-reveal>
+      <article class="glass card card-feature" data-spot data-tilt data-liquid>
+        <div class="feature-grid">
+          <div class="feature-text" data-depth="14">
+            <p class="meta">Mobile app · May – Dec 2025</p>
+            <h3>TrackPeloton</h3>
+            <p>A fitness tracking app for athletes and coaches. I set up the app architecture and the Firebase backend, then built live GPS route tracking and instant messaging.</p>
+            <ul class="ticks">
+              <li>Firebase Authentication, Firestore data model, Cloud Functions and data sync</li>
+              <li>Instant messaging with message persistence between athletes and coaches</li>
+              <li>Google Maps route visualization and live workout tracking</li>
+              <li>CI/CD pipeline for automated testing and deployment</li>
+            </ul>
+            <ul class="tags">
+              <li class="chip">React Native</li><li class="chip">TypeScript</li><li class="chip">Expo</li><li class="chip">Firebase</li><li class="chip">Google Maps API</li><li class="chip">Bluetooth</li>
+            </ul>
+          </div>
+          <div class="readouts-wrap" data-depth="30">
+            <p class="readouts-title"><span class="led" aria-hidden="true"></span>TrackPeloton in numbers</p>
+            <ul class="readouts">
+              <li><strong class="num" data-glitch>45,000+</strong><span>lines of code</span></li>
+              <li><strong class="num" data-glitch>60%+</strong><span>of the codebase is mine</span></li>
+              <li><strong class="num" data-glitch>5</strong><span>people on the team</span></li>
+            </ul>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="card-row">
+      <div data-reveal>
+        <article class="glass card" data-spot data-tilt data-liquid>
+          <p class="meta">Website · Oct – Nov 2025</p>
+          <h3>Kolibri school site</h3>
+          <p>Designed in Figma and built with Next.js for a children's language and culture centre. Deployed on Vercel with continuous integration.</p>
+          <p class="stack">Figma · Next.js · Vercel</p>
+        </article>
+      </div>
+      <div data-reveal style="--d: .08s">
+        <article class="glass card" data-spot data-tilt data-liquid>
+          <p class="meta">Consulting · Jun – Jul 2025</p>
+          <h3>Library system rollout</h3>
+          <p>Chose and set up a new library platform for Kolibri, then moved every record over with no service disruption and trained the staff.</p>
+          <p class="stack">SaaS evaluation · Data migration · Training</p>
+        </article>
+      </div>
+      <div data-reveal style="--d: .16s">
+        <article class="glass card" data-spot data-tilt data-liquid>
+          <p class="meta">Consulting · May – Oct 2024</p>
+          <h3>Moodle for Flying Minds</h3>
+          <p>Picked Moodle as the learning platform, deployed it in Docker with automated backups, and trained the team to run it.</p>
+          <p class="stack">Moodle · Docker · Backups</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section route" id="route">
+  <div class="wrap">
+    <header class="section-head" data-reveal>
+      <p class="eyebrow">Route</p>
+      <h2>The route so far</h2>
+      <p class="section-lead">Keep scrolling. The rider climbs from my first class to my latest release.</p>
+    </header>
+  </div>
+  <div class="route-track">
+    <div class="route-sticky">
+      <div class="wrap route-grid">
+        <div class="route-stage">
+          <canvas class="terrain" aria-hidden="true"></canvas>
+          <svg class="route-flat" viewBox="0 0 600 560" aria-hidden="true">
+            <path class="flat-plan" d="M40,520 C150,520 210,470 170,420 S70,360 150,310 S330,330 380,250 S290,150 390,120 S540,110 560,40"/>
+            <path class="flat-trail" d="M40,520 C150,520 210,470 170,420 S70,360 150,310 S330,330 380,250 S290,150 390,120 S540,110 560,40"/>
+            <circle class="flat-rider" cx="40" cy="520" r="7"/>
+          </svg>
+          <div class="pins" aria-hidden="true"></div>
+          <p class="route-hud" aria-hidden="true"><span class="led"></span><span class="hud-text">Checkpoint 1 of 5</span></p>
+        </div>
+        <ol class="checkpoints">
+          <li class="cp" data-pin="Start">
+            <p class="meta">May 2023 · Start</p>
+            <h3>SAIT</h3>
+            <p class="cp-body">Began the Software Development diploma at the Southern Alberta Institute of Technology.</p>
+          </li>
+          <li class="cp" data-pin="Moodle LMS">
+            <p class="meta">May – Oct 2024 · Part-time Software Consultant</p>
+            <h3>Flying Minds Learning Centre</h3>
+            <p class="cp-body">Chose Moodle as the learning platform, deployed it in Docker with automated backups, and trained the team.</p>
+          </li>
+          <li class="cp" data-pin="Library system">
+            <p class="meta">Jun – Jul 2025 · Library Systems Consultant</p>
+            <h3>Kolibri: library system</h3>
+            <p class="cp-body">Selected and set up a new library platform, and migrated every record with no service disruption.</p>
+          </li>
+          <li class="cp" data-pin="School site">
+            <p class="meta">Oct – Nov 2025 · Frontend Developer</p>
+            <h3>Kolibri: school website</h3>
+            <p class="cp-body">Designed the site in Figma, built it with Next.js and deployed it on Vercel.</p>
+          </li>
+          <li class="cp" data-pin="Summit">
+            <p class="meta">Dec 2025 · Summit</p>
+            <h3>TrackPeloton and the diploma</h3>
+            <p class="cp-body">Finished TrackPeloton with a team of 5 and completed the SAIT diploma.</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="beyond">
+  <div class="wrap">
+    <header class="section-head" data-reveal>
+      <p class="eyebrow">Beyond code</p>
+      <h2>Volunteering</h2>
+    </header>
+    <div class="card-row card-row-2">
+      <div data-reveal>
+        <article class="glass card" data-spot data-tilt data-liquid>
+          <p class="meta">Mar 2025 – Present</p>
+          <h3>Library Assistant</h3>
+          <p class="org">Kolibri Language &amp; Culture Centre for Children</p>
+          <p>I help run the centre's online library system: cataloguing, user accounts and day-to-day administration.</p>
+        </article>
+      </div>
+      <div data-reveal style="--d: .08s">
+        <article class="glass card" data-spot data-tilt data-liquid>
+          <p class="meta">Jun 2023 – Present</p>
+          <h3>Orange Level Volunteer</h3>
+          <p class="org">AARCS, Alberta Animal Rescue Crew Society</p>
+          <p>Qualified to handle dogs of every behavioural and medical profile, including injured and recovering animals. I also mentor and train new volunteers.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section contact" id="contact">
+  <div class="wrap">
+    <div class="glass panel contact-panel" data-spot data-liquid data-reveal>
+      <p class="eyebrow">Contact</p>
+      <h2>Let's talk.</h2>
+      <p class="section-lead">The fastest way to reach me is LinkedIn. My code lives on GitHub.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="https://www.linkedin.com/in/nikkonakov/">LinkedIn
+          <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg>
+        </a>
+        <a class="btn glass" href="https://github.com/NikKonakov" data-spot data-liquid="clear">GitHub
+          <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-row">
+    <p>© 2026 Nikita Konakov</p>
+    <p>Hand-built with HTML, CSS and WebGL. No trackers.</p>
+    <a href="#top">Back to top</a>
+  </div>
+</footer>
+
+</body>
 </html>
