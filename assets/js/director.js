@@ -145,6 +145,8 @@ export function createDirector(fx) {
     state,
     on(name, fn) { subs[name].add(fn); return () => subs[name].delete(fn); },
     start() { if (fx.on) start(); else rest(); },
-    stop
+    stop,
+    // bring the next surge forward (used by ?debug)
+    surge() { if (!surging) surgeAt = state.time; }
   };
 }

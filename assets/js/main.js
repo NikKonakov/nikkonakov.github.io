@@ -39,6 +39,7 @@ const fx = {
   }
 };
 
+window.siteReady = true;
 root.classList.add('js');
 root.classList.toggle('calm', !fx.on);
 

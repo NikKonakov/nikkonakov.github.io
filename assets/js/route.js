@@ -444,16 +444,18 @@ export function initRoute({ fx, director }) {
     gl.depthMask(true);
 
     // HTML overlays
-    const place = (el, p, lift) => {
+    const place = (el, p, lift, half = 0) => {
       const cw4 = mvp[3] * p[0] + mvp[7] * p[1] + mvp[11] * p[2] + mvp[15];
       if (cw4 <= 0.01) { el.style.visibility = 'hidden'; return; }
-      const x = ((mvp[0] * p[0] + mvp[4] * p[1] + mvp[8] * p[2] + mvp[12]) / cw4 * 0.5 + 0.5) * cw;
+      let x = ((mvp[0] * p[0] + mvp[4] * p[1] + mvp[8] * p[2] + mvp[12]) / cw4 * 0.5 + 0.5) * cw;
+      if (half) x = Math.min(cw - half - 4, Math.max(half + 4, x)); // keep labels inside the stage
       const y = (1 - ((mvp[1] * p[0] + mvp[5] * p[1] + mvp[9] * p[2] + mvp[13]) / cw4 * 0.5 + 0.5)) * ch;
       el.style.visibility = '';
       el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)${lift}`;
     };
     for (const pin of pins) {
-      place(pin.el, pin.p, ' translate(-50%, -100%)');
+      if (!pin.half) pin.half = pin.el.offsetWidth / 2;
+      place(pin.el, pin.p, ' translate(-50%, -100%)', pin.half);
       pin.el.classList.add('is-shown');
       pin.el.classList.toggle('is-on', q >= pin.t - 0.008);
     }

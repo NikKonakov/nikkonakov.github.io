@@ -17,6 +17,17 @@
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/instrument-serif-latin-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/inter-latin-wght.woff2" as="font" type="font/woff2" crossorigin>
+<script>
+  // Decide before the first paint: scripts are on, and should the effects stay calm?
+  (function () {
+    var root = document.documentElement, saved = null;
+    root.classList.add('js');
+    try { saved = localStorage.getItem('aurora-effects'); } catch (e) {}
+    if (saved === 'off' || (saved !== 'on' && window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) root.classList.add('calm');
+    // If the scripts never arrive, show everything instead of waiting for reveals.
+    setTimeout(function () { if (!window.siteReady) root.classList.remove('js'); }, 4000);
+  })();
+</script>
 <link rel="stylesheet" href="assets/css/site.css">
 <script type="module" src="assets/js/main.js"></script>
 <script type="application/ld+json">
@@ -48,14 +59,14 @@
 
 <header class="nav">
   <nav class="nav-pill glass" data-spot data-liquid="clear" aria-label="Primary">
-    <a class="brand" href="#top" aria-label="Nikita Konakov, back to top" data-lit>NK</a>
+    <a class="brand" href="#top" aria-label="Nikita Konakov, back to top">NK</a>
     <ul class="nav-links">
       <li><a href="#about">About</a></li>
       <li><a href="#work">Work</a></li>
       <li><a href="#route">Route</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
-    <button class="fx-toggle" type="button" aria-pressed="true" data-lit>
+    <button class="fx-toggle" type="button" aria-pressed="true">
       <span class="led" aria-hidden="true"></span>
       <span class="fx-label">Aurora</span>
     </button>
@@ -64,14 +75,14 @@
 
 <main id="main">
 
-<section class="hero" id="top" data-lit>
+<section class="hero" id="top">
   <div class="sky" aria-hidden="true">
     <canvas class="stars"></canvas>
     <canvas class="aurora"></canvas>
   </div>
 
   <div class="scene" aria-hidden="true">
-    <svg class="layer layer-far" viewBox="0 0 1440 320" preserveAspectRatio="xMidYMax slice" data-depth="0.25">
+    <svg class="layer layer-far" viewBox="0 0 1440 320" preserveAspectRatio="xMaxYMax slice" data-depth="0.25">
       <path class="ridge-far" d="M0,320 L0,230 L60,208 L120,222 L190,176 L250,202 L320,150 L380,186 L450,164 L520,208 L600,140 L660,182 L740,128 L800,170 L880,146 L950,194 L1030,158 L1100,200 L1180,144 L1250,186 L1330,162 L1400,198 L1440,180 L1440,320 Z"/>
       <g class="snow">
         <polygon points="190,176 214,186 203,185 193,194 181,188 162,194"/>
@@ -85,10 +96,10 @@
       </g>
       <polyline class="rim" points="0,230 60,208 120,222 190,176 250,202 320,150 380,186 450,164 520,208 600,140 660,182 740,128 800,170 880,146 950,194 1030,158 1100,200 1180,144 1250,186 1330,162 1400,198 1440,180"/>
     </svg>
-    <svg class="layer layer-mid" viewBox="0 0 1440 320" preserveAspectRatio="xMidYMax slice" data-depth="0.55">
+    <svg class="layer layer-mid" viewBox="0 0 1440 320" preserveAspectRatio="xMaxYMax slice" data-depth="0.55">
       <path class="ridge-mid" d="M0,320 L0,264 L80,240 L150,258 L230,218 L300,246 L390,208 L470,242 L560,222 L640,254 L730,212 L820,248 L900,226 L990,260 L1080,220 L1160,252 L1250,230 L1340,258 L1440,232 L1440,320 Z"/>
     </svg>
-    <svg class="layer layer-near" viewBox="0 0 1440 320" preserveAspectRatio="xMidYMax slice" data-depth="1">
+    <svg class="layer layer-near" viewBox="0 0 1440 320" preserveAspectRatio="xMaxYMax slice" data-depth="1">
       <defs>
         <path id="pine" d="M10,0 L16,14 L13,14 L18,26 L14,26 L20,40 L11.5,40 L11.5,48 L8.5,48 L8.5,40 L0,40 L6,26 L2,26 L7,14 L4,14 Z"/>
         <radialGradient id="lampGlow" cx="50%" cy="50%" r="50%">
@@ -143,7 +154,7 @@
     <h1 class="rise" style="--d: .15s">Nikita Konakov</h1>
     <p class="lead rise" style="--d: .3s">I build mobile and web apps with React Native, Next.js and TypeScript.</p>
     <div class="actions rise" style="--d: .45s">
-      <a class="btn btn-primary" href="#work" data-lit>See my work</a>
+      <a class="btn btn-primary" href="#work">See my work</a>
       <a class="btn glass" href="https://github.com/NikKonakov" data-spot data-liquid="clear">GitHub
         <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg>
       </a>
@@ -202,7 +213,7 @@
               <li class="chip">React Native</li><li class="chip">TypeScript</li><li class="chip">Expo</li><li class="chip">Firebase</li><li class="chip">Google Maps API</li><li class="chip">Bluetooth</li>
             </ul>
           </div>
-          <div class="readouts-wrap" data-depth="30" data-lit>
+          <div class="readouts-wrap" data-depth="30">
             <p class="readouts-title"><span class="led" aria-hidden="true"></span>TrackPeloton in numbers</p>
             <ul class="readouts">
               <li><strong class="num" data-glitch>45,000+</strong><span>lines of code</span></li>
@@ -254,7 +265,7 @@
   <div class="route-track">
     <div class="route-sticky">
       <div class="wrap route-grid">
-        <div class="route-stage" data-lit>
+        <div class="route-stage">
           <canvas class="terrain" aria-hidden="true"></canvas>
           <svg class="route-flat" viewBox="0 0 600 560" aria-hidden="true">
             <path class="flat-plan" d="M40,520 C150,520 210,470 170,420 S70,360 150,310 S330,330 380,250 S290,150 390,120 S540,110 560,40"/>
@@ -330,7 +341,7 @@
       <h2>Let's talk.</h2>
       <p class="section-lead">The fastest way to reach me is LinkedIn. My code lives on GitHub.</p>
       <div class="actions">
-        <a class="btn btn-primary" href="https://www.linkedin.com/in/nikkonakov/" data-lit>LinkedIn
+        <a class="btn btn-primary" href="https://www.linkedin.com/in/nikkonakov/">LinkedIn
           <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg>
         </a>
         <a class="btn glass" href="https://github.com/NikKonakov" data-spot data-liquid="clear">GitHub

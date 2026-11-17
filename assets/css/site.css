@@ -367,7 +367,7 @@ svg, canvas { display: block; }
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(var(--bg-rgb), 0.74) 0%, rgba(var(--bg-rgb), 0.4) 40%, rgba(var(--bg-rgb), 0) 70%);
+  background: linear-gradient(90deg, rgba(var(--bg-rgb), 0.6) 0%, rgba(var(--bg-rgb), 0.3) 40%, rgba(var(--bg-rgb), 0) 70%);
 }
 .scene {
   position: absolute;
@@ -883,7 +883,7 @@ html:not(.js) .route-hud { display: none; }
   color: var(--muted);
 }
 .js .cp {
-  opacity: 0.45;
+  opacity: 0.7;
   transition: opacity 0.45s;
 }
 .js .cp.is-on { opacity: 1; }
@@ -972,6 +972,17 @@ html:not(.js) .route-hud { display: none; }
   .js .cp:not(.is-current) .cp-body { display: none; }
   .cp h3 { font-size: 1.3rem; }
 }
+/* Short windows: only the current checkpoint keeps its description. */
+@media (max-height: 760px) and (min-width: 861px) {
+  .js .cp:not(.is-current) .cp-body { display: none; }
+}
+@media (max-height: 700px) and (max-width: 860px) {
+  .route-stage {
+    height: 34svh;
+    min-height: 200px;
+  }
+  .js .cp:not(.is-current) .meta { display: none; }
+}
 @media (max-width: 560px) {
   .nav-pill { padding-left: 14px; }
   .nav-links a {
@@ -982,4 +993,21 @@ html:not(.js) .route-hud { display: none; }
   .fx-toggle { padding: 0 16px; }
   .skill-list > div { grid-template-columns: minmax(0, 1fr); }
   .skill-list dt { padding-top: 0; }
+}
+/* The smallest phones: tighten the nav so everything fits in one pill. */
+@media (max-width: 374px) {
+  .nav { padding-inline: 6px; }
+  .nav-pill {
+    gap: 0;
+    padding: 4px 4px 4px 12px;
+  }
+  .brand {
+    padding-right: 2px;
+    font-size: 1.4rem;
+  }
+  .nav-links a {
+    padding: 0 6px;
+    font-size: 0.78rem;
+  }
+  .fx-toggle { padding: 0 12px; }
 }

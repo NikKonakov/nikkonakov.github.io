@@ -19,6 +19,7 @@ uniform float uPower;
 uniform float uPtr;
 uniform vec3 uC1;
 uniform vec3 uC2;
+uniform vec4 uSafe; // box behind the hero copy: left, bottom, right, top
 out vec4 outColor;
 
 float hash(vec2 p) {
@@ -62,10 +63,14 @@ void main() {
   vec3 col = curtain(uv, aspect, 1.0, 0.6, 0.2, 1.0);
   col += 0.75 * curtain(uv, aspect, 4.7, 0.72, 0.15, 0.8);
   col += 0.6 * curtain(uv, aspect, 9.3, 0.5, 0.24, 1.25);
-  float side = 0.3 + 0.7 * smoothstep(0.05, 0.6, uv.x);
+  float side = 0.55 + 0.45 * smoothstep(0.0, 0.5, uv.x);
   float flare = 1.0 + 0.55 * exp(-pow((uv.x - uPtr) / 0.16, 2.0));
   col *= (0.3 + 1.05 * uPower) * side * flare;
   col = 1.0 - exp(-col * 1.7);
+  // the light parts around the words, so the copy always has contrast
+  float inX = smoothstep(uSafe.x - 0.1, uSafe.x + 0.02, uv.x) * (1.0 - smoothstep(uSafe.z - 0.02, uSafe.z + 0.1, uv.x));
+  float inY = smoothstep(uSafe.y - 0.12, uSafe.y + 0.02, uv.y) * (1.0 - smoothstep(uSafe.w - 0.02, uSafe.w + 0.12, uv.y));
+  col *= 1.0 - 0.8 * inX * inY;
   float a = clamp(max(col.r, max(col.g, col.b)), 0.0, 1.0);
   outColor = vec4(col, a);
 }`;
@@ -108,7 +113,7 @@ function glPainter(canvas) {
       return false;
     }
     u = {};
-    for (const name of ['uRes', 'uTime', 'uPower', 'uPtr', 'uC1', 'uC2']) u[name] = gl.getUniformLocation(prog, name);
+    for (const name of ['uRes', 'uTime', 'uPower', 'uPtr', 'uC1', 'uC2', 'uSafe']) u[name] = gl.getUniformLocation(prog, name);
     return true;
   }
   if (!setup()) return null;
@@ -118,7 +123,7 @@ function glPainter(canvas) {
 
   return {
     kind: 'webgl2',
-    draw(time, power, ptr) {
+    draw(time, power, ptr, safe) {
       if (lost) return;
       const cw = canvas.clientWidth;
       const ch = canvas.clientHeight;
@@ -135,6 +140,7 @@ function glPainter(canvas) {
       gl.uniform1f(u.uPtr, ptr);
       gl.uniform3fv(u.uC1, GREEN);
       gl.uniform3fv(u.uC2, VIOLET);
+      gl.uniform4fv(u.uSafe, safe);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     },
     lite() { scale = 0.4; }
@@ -177,7 +183,7 @@ function flatPainter(canvas) {
 
   return {
     kind: '2d',
-    draw(time, power, ptr) {
+    draw(time, power, ptr, safe) {
       const cw = view.clientWidth;
       const ch = view.clientHeight;
       if (!cw || !ch) return;
@@ -201,9 +207,10 @@ function flatPainter(canvas) {
           const tall = bh * TALL[k] * (0.75 + 0.25 * Math.sin(uu * 5.3 + time * 0.11 + k * 2.4));
           const rays = 0.5 + 0.3 * Math.sin(uu * 46 + time * 0.6 + 2.2 * Math.sin(uu * 11 - time * 0.23 + k)) + 0.2 * Math.sin(uu * 120 - time * 0.9 + k * 3);
           const env = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(uu * 2.4 - time * 0.07 + k * 2.1));
-          const side = 0.22 + 0.78 * smooth(0.08, 0.7, uu);
+          const side = 0.55 + 0.45 * smooth(0, 0.5, uu);
           const flare = 0.55 * Math.exp(-Math.pow((uu - ptr) / 0.14, 2));
-          const a = GLOW[k] * gain * rays * env * side * (0.8 + flare);
+          const calm = 1 - 0.8 * smooth(safe[0] - 0.1, safe[0] + 0.02, uu) * (1 - smooth(safe[2] - 0.02, safe[2] + 0.1, uu));
+          const a = GLOW[k] * gain * rays * env * side * (0.8 + flare) * calm;
           if (a < 0.004) continue;
           bctx.globalAlpha = a > 1 ? 1 : a;
           bctx.drawImage(strip, 0, 0, 1, 64, x, y0 - tall, 1, tall);
@@ -235,7 +242,29 @@ export function initAurora({ fx, director }) {
   let ptrAim = 0.62;
   let ptrAt = -1e9;
 
-  const paint = () => painter.draw(time, director.state.aurora, ptr);
+  // Where the hero copy sits, as fractions of the hero (y measured from the bottom).
+  let safe = [0, 0, 0, 0];
+  function measure() {
+    const r = hero.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    let x0 = 1;
+    let y0 = 1;
+    let x1 = 0;
+    let y1 = 0;
+    for (const el of hero.querySelectorAll('.hero-copy > *')) {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const b = range.getBoundingClientRect();
+      if (!b.width) continue;
+      x0 = Math.min(x0, (b.left - r.left) / r.width);
+      x1 = Math.max(x1, (b.right - r.left) / r.width);
+      y0 = Math.min(y0, (b.top - r.top) / r.height);
+      y1 = Math.max(y1, (b.bottom - r.top) / r.height);
+    }
+    if (x1 > x0) safe = [x0, 1 - y1, x1, 1 - y0];
+  }
+
+  const paint = () => painter.draw(time, director.state.aurora, ptr, safe);
 
   function frame(now) {
     raf = requestAnimationFrame(frame);
@@ -265,10 +294,12 @@ export function initAurora({ fx, director }) {
     const r = hero.getBoundingClientRect();
     if (r.width) { ptrAim = (e.clientX - r.left) / r.width; ptrAt = performance.now(); }
   }, { passive: true });
-  addEventListener('resize', () => { if (!raf) paint(); });
+  addEventListener('resize', () => { measure(); if (!raf) paint(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { measure(); if (!raf) paint(); });
   fx.watch((on) => { if (on) run(); else { halt(); paint(); } });
   director.on('lite', () => painter.lite());
 
+  measure();
   paint();
   run();
   return { kind: painter.kind };
