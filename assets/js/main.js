@@ -6,6 +6,8 @@ import { initScene } from './scene.js';
 import { initAurora } from './aurora.js';
 import { initTopo } from './topo.js';
 import { initGlass } from './glass.js';
+import { initGlitch } from './glitch.js';
+import { initRoute } from './route.js';
 
 const root = document.documentElement;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -55,6 +57,11 @@ const scene = boot('scene', () => initScene({ fx, director }));
 boot('aurora', () => initAurora({ fx, director }));
 boot('topo', () => initTopo({ fx, director }));
 boot('glass', () => initGlass({ fx, director }));
+const glitch = boot('glitch', () => initGlitch({ fx, director, scene }));
+boot('route', () => initRoute({ fx, director }));
+
+// Open the page with ?debug to poke at the effects from the console.
+if (new URLSearchParams(location.search).has('debug')) window.site = { fx, director, glitch };
 
 // ----- Effects toggle -----
 const toggle = document.querySelector('.fx-toggle');

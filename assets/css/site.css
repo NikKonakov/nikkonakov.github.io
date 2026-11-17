@@ -189,6 +189,7 @@ svg, canvas { display: block; }
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
+  opacity: calc(0.68 + 0.32 * var(--flick)); /* the rim stutters with the lights */
 }
 /* Soft sheen inside the pane, under the content. */
 .glass::after {
@@ -790,6 +791,30 @@ html:not(.has-3d) .terrain { display: none; }
   height: 22px;
   background: linear-gradient(rgba(var(--text-rgb), 0.7), rgba(var(--text-rgb), 0));
 }
+.rider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: var(--text);
+  box-shadow: 0 0 0 3px var(--a1), 0 0 18px 4px rgba(var(--a1-rgb), 0.8);
+}
+.rider::after {
+  content: "";
+  position: absolute;
+  inset: -11px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(var(--a1-rgb), 0.7);
+  animation: ping 1.8s ease-out infinite;
+}
+@keyframes ping {
+  from { transform: scale(0.4); opacity: 0.9; }
+  to { transform: scale(1.5); opacity: 0; }
+}
+.calm .rider::after { animation: none; opacity: 0; }
 .route-hud {
   position: absolute;
   left: 0;
