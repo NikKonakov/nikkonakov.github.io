@@ -8,6 +8,10 @@ import { initTopo } from './topo.js';
 import { initGlass } from './glass.js';
 import { initGlitch } from './glitch.js';
 import { initRoute } from './route.js';
+import { initSnow } from './snow.js';
+import { initPower } from './power.js';
+import { initWildlife } from './wildlife.js';
+import { initRadio } from './radio.js';
 
 const root = document.documentElement;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -60,6 +64,23 @@ boot('topo', () => initTopo({ fx, director }));
 boot('glass', () => initGlass({ fx, director }));
 const glitch = boot('glitch', () => initGlitch({ fx, director, scene }));
 boot('route', () => initRoute({ fx, director }));
+boot('snow', () => initSnow({ fx, director }));
+boot('power', () => initPower({ fx, director }));
+boot('wildlife', () => initWildlife({ fx, director }));
+boot('radio', () => initRadio({ fx, director }));
+
+// The small line under the hero buttons says what the night is doing.
+const NOTES = {
+  quiet: 'Power’s out. Waiting for the aurora.',
+  arriving: 'Aurora rising. The power is coming back.',
+  active: 'Aurora overhead. Power restored.',
+  fading: 'Aurora fading. Lights going out.'
+};
+const note = document.querySelector('.note-text');
+if (note) {
+  if (fx.on) note.textContent = NOTES[director.state.phase];
+  director.on('phase', (phase) => { if (NOTES[phase]) note.textContent = NOTES[phase]; });
+}
 
 // Open the page with ?debug to poke at the effects from the console.
 if (new URLSearchParams(location.search).has('debug')) window.site = { fx, director, glitch };

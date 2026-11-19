@@ -54,6 +54,9 @@
 <!-- Sparks are drawn here, above the page -->
 <canvas class="sparks" aria-hidden="true"></canvas>
 
+<!-- Aurora light falling on the page -->
+<div class="wash" aria-hidden="true"></div>
+
 <!-- Filters for the liquid glass edges are added here by glass.js -->
 <svg class="defs" aria-hidden="true" focusable="false" width="0" height="0"></svg>
 
@@ -107,6 +110,15 @@
           <stop offset="0.35" stop-color="#FFC27A" stop-opacity="0.18"/>
           <stop offset="1" stop-color="#FFC27A" stop-opacity="0"/>
         </radialGradient>
+        <radialGradient id="coldGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="#E9FFF5" stop-opacity="0.6"/>
+          <stop offset="0.35" stop-color="#9CF5D0" stop-opacity="0.2"/>
+          <stop offset="1" stop-color="#6CE5BB" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="eyeGlow" x="-50%" y="-200%" width="200%" height="500%">
+          <feGaussianBlur stdDeviation="1.6" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
       </defs>
       <g class="pines">
         <use href="#pine" transform="translate(28,229.7) scale(1.2)"/>
@@ -136,18 +148,32 @@
         <circle class="emitter" cx="1310" cy="247" r="1.4"/>
       </g>
       <path class="ridge-near" d="M0,320 L0,290 L110,276 L220,292 L340,268 L460,288 L590,272 L720,294 L850,276 L980,292 L1110,274 L1240,290 L1360,278 L1440,288 L1440,320 Z"/>
+      <g class="eyes" filter="url(#eyeGlow)">
+        <g class="pair" transform="translate(80,273)"><g class="lid"><circle cx="-2.7" r="1.55"/><circle cx="2.7" r="1.55"/></g></g>
+        <g class="pair" transform="translate(245,281)"><g class="lid"><circle cx="-2.7" r="1.55"/><circle cx="2.7" r="1.55"/></g></g>
+        <g class="pair" transform="translate(505,276)"><g class="lid"><circle cx="-2.7" r="1.55"/><circle cx="2.7" r="1.55"/></g></g>
+        <g class="pair" transform="translate(760,282)"><g class="lid"><circle cx="-2.7" r="1.55"/><circle cx="2.7" r="1.55"/></g></g>
+        <g class="pair" transform="translate(905,276)"><g class="lid"><circle cx="-2.7" r="1.55"/><circle cx="2.7" r="1.55"/></g></g>
+        <g class="pair" transform="translate(1180,276)"><g class="lid"><circle cx="-2.7" r="1.55"/><circle cx="2.7" r="1.55"/></g></g>
+        <g class="pair" transform="translate(1295,278)"><g class="lid"><circle cx="-2.7" r="1.55"/><circle cx="2.7" r="1.55"/></g></g>
+        <g class="pair" transform="translate(1420,279)"><g class="lid"><circle cx="-2.7" r="1.55"/><circle cx="2.7" r="1.55"/></g></g>
+      </g>
       <g class="cabin">
-        <circle class="lamp-glow" cx="1052" cy="271" r="58" fill="url(#lampGlow)"/>
+        <g class="lantern"><circle class="lamp-glow" cx="1052" cy="271" r="58" fill="url(#lampGlow)"/></g>
+        <circle class="cold-glow" cx="1052" cy="271" r="66" fill="url(#coldGlow)"/>
         <rect class="cabin-body" x="1038" y="258" width="50" height="30"/>
         <rect class="cabin-body" x="1076" y="238" width="6" height="14"/>
         <path class="cabin-roof" d="M1029,261 L1063,238 L1097,261 L1090,261 L1063,243 L1036,261 Z"/>
         <path class="cabin-snow" d="M1029,261 L1063,238 L1097,261"/>
-        <rect class="cabin-window" x="1047" y="266" width="11" height="10"/>
+        <g class="lantern"><rect class="cabin-window" x="1047" y="266" width="11" height="10"/></g>
+        <rect class="cabin-window cold" x="1047" y="266" width="11" height="10"/>
         <path class="cabin-frame" d="M1052.5,266 V276 M1047,271 H1058"/>
         <rect class="cabin-door" x="1068" y="267" width="9" height="20"/>
       </g>
     </svg>
   </div>
+
+  <canvas class="snowfall" aria-hidden="true"></canvas>
 
   <div class="wrap hero-copy">
     <p class="eyebrow rise" style="--d: .05s">Software Developer · Calgary, Alberta</p>
@@ -159,7 +185,7 @@
         <svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg>
       </a>
     </div>
-    <p class="aurora-note rise" style="--d: .6s"><span class="led" aria-hidden="true"></span>Aurora overhead. Lights may flicker.</p>
+    <p class="aurora-note rise" style="--d: .6s"><span class="led" aria-hidden="true"></span><span class="note-text">Aurora overhead. Lights may flicker.</span></p>
   </div>
 </section>
 
@@ -361,6 +387,36 @@
     <a href="#top">Back to top</a>
   </div>
 </footer>
+
+<!-- Field radio: dead in the dark, it picks up transmissions during the aurora -->
+<aside class="radio" aria-label="Field radio" data-open="false" data-phase="quiet">
+  <button class="radio-fab glass" type="button" aria-label="Open the field radio" aria-expanded="false" data-spot>
+    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v11H4zM8 9l9-5M12.5 13H17M12.5 16.5H17"/><circle cx="8" cy="14.5" r="2"/></svg>
+    <span class="led" aria-hidden="true"></span>
+  </button>
+  <div class="radio-body glass" data-spot data-liquid>
+    <div class="radio-head">
+      <span class="radio-dot" aria-hidden="true"></span>
+      <p class="radio-status">No signal</p>
+      <p class="radio-freq" aria-hidden="true">104.7 MHz</p>
+      <button class="radio-btn radio-sound" type="button" aria-pressed="false" aria-label="Radio sound">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path class="snd-off" d="M16 9.5l5 5M21 9.5l-5 5"/><path class="snd-on" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+      </button>
+      <button class="radio-btn radio-hide" type="button" aria-label="Hide the field radio">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg>
+      </button>
+    </div>
+    <canvas class="radio-scope" aria-hidden="true"></canvas>
+    <p class="radio-text">Static. The power is out.</p>
+    <div class="radio-foot">
+      <p class="radio-next">Waiting for the aurora</p>
+      <button class="radio-pass" type="button">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/></svg>
+        Pass time
+      </button>
+    </div>
+  </div>
+</aside>
 
 </body>
 </html>
