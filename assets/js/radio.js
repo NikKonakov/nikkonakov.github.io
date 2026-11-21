@@ -13,11 +13,11 @@ const noise = (n) => {
 const LINES = [
   'Signal acquired. This is Nikita Konakov, Calgary, Alberta.',
   'Software developer. I build mobile and web apps with React Native, Next.js and TypeScript.',
-  'Latest project: TrackPeloton, a fitness app for athletes and coaches. Team of 5, 45,000+ lines.',
-  'Before that: a Moodle platform in Docker, a library migration and a school website.',
+  'Latest project: TrackPeloton, a fitness app for athletes and coaches. Team of five, 45,000+ lines of code.',
+  'Also shipped: a Moodle platform in Docker, a library system migration and a school website.',
   'Diploma in Software Development, SAIT, 2025.',
   'Off the clock: orange-level volunteer at AARCS, the Alberta Animal Rescue Crew Society.',
-  'To reach me, use LinkedIn or GitHub. Over.'
+  'Reach me on LinkedIn. My code is on GitHub. Over.'
 ];
 
 const KEY = 'radio';
@@ -149,11 +149,29 @@ export function initRadio({ fx, director }) {
   let wantOpen = pref ? pref === 'open' : innerWidth >= 900;
   let inHero = true;
   let pinned = false;
+  let forced = false; // the visitor opened it themselves this visit
+  const body = $('.radio-body');
+  const copy = hero ? [...hero.querySelectorAll('.actions, .aurora-note')] : [];
+  // On short screens the open radio would sit on the hero buttons: then it waits as a button.
+  const crowded = () => {
+    const r = body && body.getBoundingClientRect();
+    if (!r || !r.width) return false;
+    return copy.some((el) => {
+      const c = el.getBoundingClientRect();
+      return c.width && r.left < c.right && c.left < r.right && r.top < c.bottom && c.top < r.bottom;
+    });
+  };
   const render = () => {
-    const open = wantOpen && (inHero || pinned);
+    let open = wantOpen && (inHero || pinned);
     box.dataset.open = String(open);
+    if (open && !forced && crowded()) {
+      open = false;
+      box.dataset.open = 'false';
+    }
+    if (!open && body && body.contains(document.activeElement) && fab) fab.focus();
     if (fab) fab.setAttribute('aria-expanded', String(open));
   };
+  addEventListener('resize', () => { if (!forced) render(); });
   if (hero && 'IntersectionObserver' in window) {
     new IntersectionObserver((entries) => {
       inHero = entries[entries.length - 1].intersectionRatio >= 0.35;
@@ -163,6 +181,7 @@ export function initRadio({ fx, director }) {
   }
   if (fab) fab.addEventListener('click', () => {
     wantOpen = true;
+    forced = true;
     pinned = !inHero;
     save('open');
     render();
@@ -170,6 +189,7 @@ export function initRadio({ fx, director }) {
   });
   if (hideBtn) hideBtn.addEventListener('click', () => {
     wantOpen = false;
+    forced = false;
     pinned = false;
     save('closed');
     render();
@@ -315,7 +335,11 @@ export function initRadio({ fx, director }) {
     if (state.phase !== lastPhase) {
       lastPhase = state.phase;
       box.dataset.phase = state.phase;
-      if (passBtn) passBtn.disabled = state.phase !== 'quiet';
+      if (passBtn) {
+        // the button hides once pressed: hand keyboard focus to the next control
+        if (state.phase !== 'quiet' && document.activeElement === passBtn && soundBtn) soundBtn.focus();
+        passBtn.disabled = state.phase !== 'quiet';
+      }
     }
     put(status, label(state, now));
     put(textEl, decode(state, step, now));

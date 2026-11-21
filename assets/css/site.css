@@ -1118,7 +1118,7 @@ html:not(.js) .route-hud { display: none; }
   position: absolute;
   top: 4px;
   left: 50%;
-  width: 170%;
+  width: min(170%, calc(100vw - 24px)); /* never wider than a phone, even where overflow clip is missing */
   height: clamp(320px, 50vw, 640px);
   transform: translateX(-50%);
   background: radial-gradient(50% 100% at 50% 0%, rgba(214, 255, 236, 0.13), rgba(var(--a1-rgb), 0.05) 45%, rgba(var(--a1-rgb), 0) 75%);

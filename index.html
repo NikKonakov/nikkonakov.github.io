@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -62,14 +62,14 @@
 
 <header class="nav">
   <nav class="nav-pill glass" data-spot data-liquid="clear" aria-label="Primary">
-    <a class="brand" href="#top" aria-label="Nikita Konakov, back to top">NK</a>
+    <a class="brand" href="#top">NK<span class="sr">, Nikita Konakov, back to top</span></a>
     <ul class="nav-links">
       <li><a href="#about">About</a></li>
       <li><a href="#work">Work</a></li>
       <li><a href="#route">Route</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
-    <button class="fx-toggle" type="button" aria-pressed="true">
+    <button class="fx-toggle" type="button" aria-pressed="true" aria-label="Aurora effects">
       <span class="led" aria-hidden="true"></span>
       <span class="fx-label">Aurora</span>
     </button>
@@ -193,13 +193,13 @@
   <div class="wrap">
     <header class="section-head" data-reveal>
       <p class="eyebrow">About</p>
-      <h2>I build the app, launch it, and train the people who run it.</h2>
+      <h2>I build the app, launch it and train the people who run it.</h2>
     </header>
     <div class="about-grid">
       <div class="about-text" data-reveal>
-        <p>I'm a software developer in Calgary. I finished the Software Development diploma at SAIT in December 2025.</p>
+        <p>I’m a software developer in Calgary. I finished the Software Development diploma at SAIT in December 2025.</p>
         <p>My main project so far is TrackPeloton, a fitness tracking app for athletes and coaches. I designed its architecture and Firebase backend, and wrote more than 60% of the code.</p>
-        <p>I have also put learning platforms, a library system and a school website into production for small organizations, then trained the staff to run them.</p>
+        <p>I have also launched a learning platform, a library system and a school website for small organizations, and trained staff to run the platform and the library.</p>
       </div>
       <div class="glass panel skills" data-spot data-liquid data-reveal>
         <h3 class="panel-title">Toolbox</h3>
@@ -208,7 +208,7 @@
           <div><dt>Frontend</dt><dd><span class="chip">React</span><span class="chip">React Native</span><span class="chip">Next.js</span><span class="chip">Expo</span><span class="chip">Tailwind CSS</span><span class="chip">NativeWind</span></dd></div>
           <div><dt>Backend</dt><dd><span class="chip">Firebase Auth</span><span class="chip">Firestore</span><span class="chip">Cloud Functions</span><span class="chip">SQL</span><span class="chip">Database design</span></dd></div>
           <div><dt>Tools</dt><dd><span class="chip">Git / GitHub</span><span class="chip">Docker</span><span class="chip">CI/CD</span><span class="chip">Expo Router</span><span class="chip">REST APIs</span></dd></div>
-          <div><dt>Practices</dt><dd><span class="chip">OOP</span><span class="chip">Design patterns</span><span class="chip">Jest</span><span class="chip">JUnit</span><span class="chip">Agile / Scrum</span><span class="chip">UML</span></dd></div>
+          <div><dt>Practices</dt><dd><span class="chip">OOP</span><span class="chip">Design patterns</span><span class="chip">Unit testing (Jest, JUnit)</span><span class="chip">Agile / Scrum</span><span class="chip">UML</span></dd></div>
         </dl>
       </div>
     </div>
@@ -256,7 +256,7 @@
         <article class="glass card" data-spot data-tilt data-liquid>
           <p class="meta">Website · Oct – Nov 2025</p>
           <h3>Kolibri school site</h3>
-          <p>Designed in Figma and built with Next.js for a children's language and culture centre. Deployed on Vercel with continuous integration.</p>
+          <p>Designed in Figma and built with Next.js for a children’s language and culture centre. Deployed on Vercel with continuous integration.</p>
           <p class="stack">Figma · Next.js · Vercel</p>
         </article>
       </div>
@@ -272,7 +272,7 @@
         <article class="glass card" data-spot data-tilt data-liquid>
           <p class="meta">Consulting · May – Oct 2024</p>
           <h3>Moodle for Flying Minds</h3>
-          <p>Picked Moodle as the learning platform, deployed it in Docker with automated backups, and trained the team to run it.</p>
+          <p>Picked Moodle as the learning platform, deployed it in Docker with automated backups and trained the team to run it.</p>
           <p class="stack">Moodle · Docker · Backups</p>
         </article>
       </div>
@@ -308,14 +308,14 @@
             <p class="cp-body">Began the Software Development diploma at the Southern Alberta Institute of Technology.</p>
           </li>
           <li class="cp" data-pin="Moodle LMS">
-            <p class="meta">May – Oct 2024 · Part-time Software Consultant</p>
+            <p class="meta">May – Oct 2024 · Part-Time Software Consultant</p>
             <h3>Flying Minds Learning Centre</h3>
-            <p class="cp-body">Chose Moodle as the learning platform, deployed it in Docker with automated backups, and trained the team.</p>
+            <p class="cp-body">Chose Moodle as the learning platform, deployed it in Docker with automated backups and trained the team.</p>
           </li>
           <li class="cp" data-pin="Library system">
-            <p class="meta">Jun – Jul 2025 · Library Systems Consultant</p>
+            <p class="meta">Jun – Jul 2025 · Library Systems Implementation Consultant</p>
             <h3>Kolibri: library system</h3>
-            <p class="cp-body">Selected and set up a new library platform, and migrated every record with no service disruption.</p>
+            <p class="cp-body">Selected and set up a new library platform and migrated every record with no service disruption.</p>
           </li>
           <li class="cp" data-pin="School site">
             <p class="meta">Oct – Nov 2025 · Frontend Developer</p>
@@ -325,7 +325,7 @@
           <li class="cp" data-pin="Summit">
             <p class="meta">Dec 2025 · Summit</p>
             <h3>TrackPeloton and the diploma</h3>
-            <p class="cp-body">Finished TrackPeloton with a team of 5 and completed the SAIT diploma.</p>
+            <p class="cp-body">Finished TrackPeloton with a team of five and completed the SAIT diploma.</p>
           </li>
         </ol>
       </div>
@@ -345,7 +345,7 @@
           <p class="meta">Mar 2025 – Present</p>
           <h3>Library Assistant</h3>
           <p class="org">Kolibri Language &amp; Culture Centre for Children</p>
-          <p>I help run the centre's online library system: cataloguing, user accounts and day-to-day administration.</p>
+          <p>I help run the centre’s online library system: cataloguing, user accounts and day-to-day administration.</p>
         </article>
       </div>
       <div data-reveal style="--d: .08s">
@@ -364,7 +364,7 @@
   <div class="wrap">
     <div class="glass panel contact-panel" data-spot data-liquid data-reveal>
       <p class="eyebrow">Contact</p>
-      <h2>Let's talk.</h2>
+      <h2>Let’s talk.</h2>
       <p class="section-lead">The fastest way to reach me is LinkedIn. My code lives on GitHub.</p>
       <div class="actions">
         <a class="btn btn-primary" href="https://www.linkedin.com/in/nikkonakov/">LinkedIn
