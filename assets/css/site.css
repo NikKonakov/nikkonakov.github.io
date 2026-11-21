@@ -38,13 +38,14 @@
   --near: #070E1B;
 
   --display: 'Instrument Serif', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
   --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --gutter: clamp(20px, 5vw, 80px);
 
   /* Driven by director.js. These defaults are what you get with effects off. */
-  --aurora: 0.55; /* sky energy, smooth */
-  --lamp: 0.5;    /* light level, smooth */
-  --flick: 1;     /* fast flicker, small lights only */
+  --aurora: 0.62; /* sky energy, smooth */
+  --lamp: 0.8;    /* light level, smooth */
+  --power: 1;     /* electricity: 0 in the blackout, stutters while the aurora comes and goes */
 }
 
 /* ---------- Base ---------- */
@@ -189,7 +190,7 @@ svg, canvas { display: block; }
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  opacity: calc(0.68 + 0.32 * var(--flick)); /* the rim stutters with the lights */
+  opacity: calc(0.6 + 0.4 * var(--aurora)); /* the rim catches the aurora */
 }
 /* Soft sheen inside the pane, under the content. */
 .glass::after {
@@ -209,8 +210,8 @@ svg, canvas { display: block; }
   height: 8px;
   border-radius: 50%;
   background: var(--a1);
-  opacity: calc(0.3 + 0.7 * var(--flick));
-  box-shadow: 0 0 calc(4px + 10px * var(--lamp)) rgba(var(--a1-rgb), 0.9);
+  opacity: calc(0.22 + 0.78 * var(--power));
+  box-shadow: 0 0 calc(2px + 12px * var(--lamp)) rgba(var(--a1-rgb), 0.9);
 }
 
 /* ---------- Buttons and chips ---------- */
@@ -230,7 +231,7 @@ svg, canvas { display: block; }
 .btn-primary {
   background: var(--a1);
   color: var(--bg);
-  box-shadow: 0 0 calc(10px + 30px * var(--lamp)) rgba(var(--a1-rgb), calc(0.2 + 0.35 * var(--flick)));
+  box-shadow: 0 0 calc(8px + 30px * var(--lamp)) rgba(var(--a1-rgb), calc(0.1 + 0.45 * var(--power)));
 }
 .btn-primary:hover { background: var(--text); }
 .btn.glass {
@@ -297,7 +298,7 @@ svg, canvas { display: block; }
   font: 400 1.65rem/1 var(--display);
   letter-spacing: 0.01em;
   text-decoration: none;
-  text-shadow: 0 0 calc(6px + 16px * var(--lamp)) rgba(var(--a1-rgb), calc(0.25 + 0.6 * var(--flick)));
+  text-shadow: 0 0 calc(6px + 16px * var(--lamp)) rgba(var(--a1-rgb), calc(0.15 + 0.6 * var(--power)));
 }
 .nav-links { display: flex; }
 .nav-links a {
@@ -412,7 +413,7 @@ svg, canvas { display: block; }
   stroke-linecap: round;
   vector-effect: none;
 }
-.emitter { fill: rgba(var(--lamp-rgb), calc(0.2 + 0.8 * var(--flick) * var(--lamp))); }
+.emitter { fill: rgba(214, 255, 238, calc(0.12 + 0.88 * var(--power))); }
 .cabin-body, .cabin-roof { fill: var(--near); }
 .cabin-snow {
   fill: none;
@@ -421,9 +422,26 @@ svg, canvas { display: block; }
   stroke-linejoin: round;
   stroke-linecap: round;
 }
-.cabin-window {
-  fill: rgb(var(--lamp-rgb));
-  opacity: calc(0.1 + 0.9 * var(--lamp) * var(--flick));
+/* Two kinds of light in the cabin: a lantern in the dark, the electric bulb under the aurora */
+.cabin-window { fill: rgb(var(--lamp-rgb)); }
+.cabin-window.cold {
+  fill: #EAFFF6;
+  opacity: var(--power);
+}
+.cold-glow { opacity: calc(0.9 * var(--power)); }
+.lantern {
+  opacity: calc(1 - var(--power));
+  transition: opacity 0.3s;
+}
+.lantern > * { animation: fire 2.8s ease-in-out infinite alternate; }
+@keyframes fire {
+  0% { opacity: 0.8; }
+  17% { opacity: 0.95; }
+  31% { opacity: 0.72; }
+  46% { opacity: 1; }
+  62% { opacity: 0.8; }
+  78% { opacity: 0.93; }
+  100% { opacity: 0.76; }
 }
 .cabin-frame {
   fill: none;
@@ -431,7 +449,6 @@ svg, canvas { display: block; }
   stroke-width: 1;
 }
 .cabin-door { fill: rgba(var(--text-rgb), 0.05); }
-.lamp-glow { opacity: calc(var(--lamp) * var(--flick)); }
 
 .hero-copy {
   position: relative;
@@ -466,10 +483,12 @@ h1 {
 .section {
   position: relative;
   padding-block: clamp(72px, 10vw, 136px);
+  overflow-x: clip; /* the tube's light cone is wider than a phone; never let it widen the page */
 }
 /* The ground under the mountains fades into the living map below. */
 .hero + .section::before {
   content: "";
+  z-index: -1;
   position: absolute;
   inset: 0 0 auto 0;
   height: 260px;
@@ -1010,4 +1029,270 @@ html:not(.js) .route-hud { display: none; }
     font-size: 0.78rem;
   }
   .fx-toggle { padding: 0 12px; }
+}
+
+/* ---------- Blackout and aurora ---------- */
+
+/* Live wire: faintly lit while the power is on, white-hot when touched */
+.wires path:not(.pole) { stroke: rgba(var(--text-rgb), calc(0.16 + 0.24 * var(--power))); }
+.hero.zapped .wires path:not(.pole) {
+  stroke: #F4FFFA;
+  stroke-width: 2.2;
+}
+
+/* Snow over the hero, in front of the mountains, behind the words */
+.snowfall {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* A little grain so the scene reads painted rather than rendered */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Eyes in the treeline, only under the aurora */
+.eyes .pair {
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+.eyes .pair.on { opacity: 1; }
+.eyes circle { fill: #E6FF9A; }
+.eyes .lid {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 70ms;
+}
+.eyes .pair.blink .lid { transform: scaleY(0.1); }
+
+/* The aurora's light falling on the whole page */
+.wash {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  background: radial-gradient(130% 55% at 50% -12%, rgba(var(--a1-rgb), 0.12), rgba(var(--a1-rgb), 0) 70%);
+  opacity: clamp(0, calc((var(--aurora) - 0.15) * 1.3), 1);
+  will-change: opacity;
+}
+
+/* Fluorescent tubes over each section */
+.tube {
+  --tube: 0;
+  position: absolute;
+  top: clamp(18px, 3vw, 40px);
+  left: 50%;
+  z-index: -1;
+  width: min(560px, 70%);
+  height: 8px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background: linear-gradient(#2A3446, #141B28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 6px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+.tube-glass {
+  position: absolute;
+  inset: 1px 12px;
+  border-radius: 999px;
+  background: #F2FFF8;
+  opacity: calc(var(--tube) * var(--power));
+  box-shadow:
+    0 0 8px 1px rgba(222, 255, 240, 0.95),
+    0 0 26px 4px rgba(var(--a1-rgb), 0.55),
+    0 0 80px 18px rgba(var(--a1-rgb), 0.18);
+}
+/* the light it casts down into the room */
+.tube::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: min(170%, calc(100vw - 24px)); /* never wider than a phone, even where overflow clip is missing */
+  height: clamp(320px, 50vw, 640px);
+  transform: translateX(-50%);
+  background: radial-gradient(50% 100% at 50% 0%, rgba(214, 255, 236, 0.13), rgba(var(--a1-rgb), 0.05) 45%, rgba(var(--a1-rgb), 0) 75%);
+  opacity: calc(var(--tube) * var(--power));
+  pointer-events: none;
+}
+
+/* ---------- Field radio ---------- */
+/* bottom left on wide screens, so the cabin and the power line stay in view */
+.radio {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 55;
+}
+html:not(.js) .radio { display: none; }
+.radio[data-open="true"] .radio-fab,
+.radio[data-open="false"] .radio-body { display: none; }
+
+.radio-fab {
+  --r: 999px;
+  --glass-tint: 0.55;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  border: 0;
+  color: var(--text);
+  cursor: pointer;
+}
+.radio-fab .ico {
+  width: 22px;
+  height: 22px;
+}
+.radio-fab .led {
+  position: absolute;
+  top: 10px;
+  right: 11px;
+  width: 7px;
+  height: 7px;
+}
+.radio[data-phase="active"] .radio-fab { animation: beacon 2.4s ease-out infinite; }
+@keyframes beacon {
+  from { outline: 2px solid rgba(var(--a1-rgb), 0.6); outline-offset: 0; }
+  to { outline: 2px solid rgba(var(--a1-rgb), 0); outline-offset: 12px; }
+}
+
+.radio-body {
+  --r: 20px;
+  --glass-tint: 0.62;
+  display: grid;
+  gap: 8px;
+  width: min(330px, calc(100vw - 32px));
+  padding: 12px 12px 12px 14px;
+}
+.radio-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.radio-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(var(--text-rgb), 0.3);
+}
+.radio[data-phase="arriving"] .radio-dot,
+.radio[data-phase="fading"] .radio-dot {
+  background: #FFC27A;
+  box-shadow: 0 0 8px rgba(255, 194, 122, 0.8);
+}
+.radio[data-phase="active"] .radio-dot {
+  background: var(--a1);
+  box-shadow: 0 0 10px rgba(var(--a1-rgb), 0.9);
+}
+.radio-status {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.radio-freq {
+  font: 500 0.6875rem/1 var(--mono);
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.radio-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: -6px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(var(--text-rgb), 0.06);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.radio-btn:hover { background: rgba(var(--text-rgb), 0.14); }
+.radio-btn .ico {
+  width: 18px;
+  height: 18px;
+}
+.radio-sound[aria-pressed="true"] { color: var(--a1); }
+.radio-sound[aria-pressed="true"] .snd-off,
+.radio-sound[aria-pressed="false"] .snd-on { display: none; }
+.radio-scope {
+  width: 100%;
+  height: 38px;
+  border-radius: 8px;
+  background: rgba(var(--bg-rgb), 0.55);
+  box-shadow: inset 0 0 0 1px rgba(var(--text-rgb), 0.08);
+}
+.radio-text {
+  min-height: 2.9em;
+  font: 400 0.8125rem/1.45 var(--mono);
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.radio[data-phase="quiet"] .radio-text { color: var(--muted); }
+.radio-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 40px;
+}
+.radio-next {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.radio-pass {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(var(--a1-rgb), 0.16);
+  color: var(--text);
+  font: 600 0.75rem/1 var(--sans);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.radio-pass:hover { background: rgba(var(--a1-rgb), 0.28); }
+.radio-pass:disabled { display: none; }
+.radio-pass .ico {
+  width: 16px;
+  height: 16px;
+}
+
+/* Calm mode: one still, powered frame and none of the extras */
+.calm .radio,
+.calm .snowfall,
+.calm .eyes { display: none; }
+.calm .lantern > * { animation: none; }
+
+@media (max-width: 560px) {
+  .radio {
+    left: auto;
+    right: 10px;
+    bottom: 10px;
+  }
+  .radio-body { width: calc(100vw - 20px); }
+  .radio-freq { display: none; }
 }

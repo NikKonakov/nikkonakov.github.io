@@ -1,6 +1,7 @@
-// When the aurora surges, the readouts act up: digits scramble, the colours split,
-// sparks fly off, and then every number snaps back to its real value.
+// When the aurora brings the power back, the readouts act up: digits scramble,
+// the colours split, sparks fly off, and then every number snaps back to its real value.
 // Screen readers only ever get the real value.
+// The power line in the hero is live during the aurora: touch it and it bites.
 
 const rand = (a, b) => a + Math.random() * (b - a);
 const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -211,14 +212,60 @@ export function initGlitch({ fx, director, scene }) {
   }
 
   director.on('frame', (state, dt, now) => {
+    // no power, no glitches: dead electronics just sit there
     for (const n of nums) {
-      if (n.visible && !n.busy && now >= n.next) {
+      if (n.visible && !n.busy && now >= n.next && state.power > 0.5) {
         burst(n, false);
         n.next = now + rand(8000, 16000);
       }
     }
-    if (state.surge > 0.5 && Math.random() < dt * 1.3) poleSparks(Math.round(rand(4, 9)));
+    if (state.surge > 0.5 && Math.random() < dt * 0.5) poleSparks(Math.round(rand(4, 9)));
   });
+
+  // The power dies: one last hiccup.
+  director.on('drop', () => {
+    for (const n of nums) {
+      if (n.visible) setTimeout(() => burst(n, false), rand(0, 500));
+    }
+  });
+
+  // ----- Live wire -----
+  const hero = document.querySelector('.hero');
+  const layer = document.querySelector('.layer-near');
+  const wire = layer && layer.querySelector('.wires path:not(.pole)');
+  if (hero && wire && wire.getTotalLength) {
+    const len = wire.getTotalLength();
+    const pts = [];
+    for (let i = 0; i <= 96; i++) {
+      const p = wire.getPointAtLength((len * i) / 96);
+      pts.push([p.x, p.y]);
+    }
+    let zapAt = 0;
+    hero.addEventListener('pointermove', (e) => {
+      if (!fx.on || director.state.power < 0.5) return;
+      const now = performance.now();
+      if (now - zapAt < 380) return;
+      // the layer keeps its right and bottom edges (xMaxYMax slice)
+      const r = layer.getBoundingClientRect();
+      const sc = Math.max(r.width / 1440, r.height / 320);
+      const ox = r.right - 1440 * sc;
+      const oy = r.bottom - 320 * sc;
+      const reach = e.pointerType === 'touch' ? 18 : 10;
+      for (const [x, y] of pts) {
+        const sx = ox + x * sc;
+        const sy = oy + y * sc;
+        if (Math.abs(sx - e.clientX) > reach || Math.abs(sy - e.clientY) > reach) continue;
+        zapAt = now;
+        emit(sx, sy, 24, false, 1.1);
+        bolt(sx, sy, e.clientX + rand(-16, 16), e.clientY + rand(-16, 16));
+        bolt(sx, sy, sx + rand(-34, 34), sy + rand(-28, 4));
+        hero.classList.add('zapped');
+        setTimeout(() => hero.classList.remove('zapped'), 170);
+        window.dispatchEvent(new CustomEvent('aurora:zap'));
+        break;
+      }
+    }, { passive: true });
+  }
 
   director.on('surge', () => {
     for (const n of nums) {

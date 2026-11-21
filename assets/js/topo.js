@@ -1,6 +1,8 @@
 // The living map behind the lower sections: contour lines of a slow, drifting
 // height field. The pointer raises a small hill, so the lines bend around it.
 // Glass panels in front of it blur and refract these lines.
+// In the dark the map is only readable inside a warm lantern circle around the
+// pointer; under the aurora the whole map lights up green.
 
 const CELL = 18;      // grid step in CSS px
 const STEP = 0.06;    // height between two contour lines
@@ -40,8 +42,11 @@ export function initTopo({ fx, director }) {
   let shown = 0;
   let time = Math.random() * 100;
   let cell = CELL;
+  const lit = document.createElement('canvas'); // the lantern's view of the map
+  const lctx = lit.getContext('2d');
+  const lamp = { x: 0.5, y: 0.6 };
 
-  function draw(power) {
+  function draw(power, lantern) {
     const cw = canvas.clientWidth;
     const ch = canvas.clientHeight;
     if (!cw || !ch) return;
@@ -105,25 +110,71 @@ export function initTopo({ fx, director }) {
         }
       }
     }
-    const k = 0.75 + 0.5 * power;
+    // sky: 0 in the dark, 1 under a full aurora
+    const sky = Math.min(1, Math.max(0, (power - 0.1) / 0.7));
+    const k = (0.75 + 0.5 * power) * (0.16 + 0.84 * sky);
+    const glow = lantern * (1 - sky);
     ctx.clearRect(0, 0, w, h);
     ctx.lineCap = 'round';
+
+    // the lantern follows the pointer, or wanders when nobody is pointing
+    const lx = lamp.x * w;
+    const ly = lamp.y * h;
+    const R = Math.min(340, Math.max(220, cw * 0.22)) * s;
+    if (glow > 0.02) {
+      const pool = ctx.createRadialGradient(lx, ly, 0, lx, ly, R);
+      pool.addColorStop(0, `rgba(255,226,182,${(0.11 * glow).toFixed(3)})`);
+      pool.addColorStop(1, 'rgba(255,226,182,0)');
+      ctx.fillStyle = pool;
+      ctx.fillRect(lx - R, ly - R, 2 * R, 2 * R);
+    }
+
     ctx.lineWidth = s;
     ctx.strokeStyle = `rgba(${RGB},${(0.11 * k).toFixed(3)})`;
     ctx.stroke(minor);
     ctx.lineWidth = 1.5 * s;
     ctx.strokeStyle = `rgba(${RGB},${(0.24 * k).toFixed(3)})`;
     ctx.stroke(major);
+
+    if (glow > 0.02 && lctx) {
+      if (lit.width !== w || lit.height !== h) { lit.width = w; lit.height = h; }
+      lctx.globalCompositeOperation = 'source-over';
+      lctx.clearRect(0, 0, w, h);
+      lctx.lineCap = 'round';
+      lctx.lineWidth = s;
+      lctx.strokeStyle = 'rgba(255,236,206,0.5)';
+      lctx.stroke(minor);
+      lctx.lineWidth = 1.6 * s;
+      lctx.strokeStyle = 'rgba(255,240,214,0.88)';
+      lctx.stroke(major);
+      const mask = lctx.createRadialGradient(lx, ly, 0, lx, ly, R);
+      mask.addColorStop(0, 'rgba(0,0,0,1)');
+      mask.addColorStop(0.55, 'rgba(0,0,0,0.55)');
+      mask.addColorStop(1, 'rgba(0,0,0,0)');
+      lctx.globalCompositeOperation = 'destination-in';
+      lctx.fillStyle = mask;
+      lctx.fillRect(0, 0, w, h);
+      ctx.globalAlpha = glow;
+      ctx.drawImage(lit, 0, 0);
+      ctx.globalAlpha = 1;
+    }
   }
 
   // Nothing to draw while the hero still covers the whole window.
   const covered = () => hero && hero.getBoundingClientRect().bottom >= innerHeight;
 
   director.on('frame', (state, dt, now) => {
+    // the lantern trails the pointer a little, like a real one swinging in your hand
+    const idle = now - ptr.at > 4000;
+    const t = now / 1000;
+    const ax = idle ? 0.5 + 0.28 * Math.sin(t * 0.13) : ptr.x;
+    const ay = idle ? 0.62 + 0.18 * Math.sin(t * 0.17 + 1) : ptr.y;
+    lamp.x += (ax - lamp.x) * Math.min(1, dt * 7);
+    lamp.y += (ay - lamp.y) * Math.min(1, dt * 7);
     if (now - shown < 45 || covered()) return;
     time += (now - shown > 500 ? 0.045 : (now - shown) / 1000);
     shown = now;
-    draw(state.aurora);
+    draw(state.aurora, 1);
   });
   director.on('lite', () => { cell = 26; });
 
@@ -134,7 +185,7 @@ export function initTopo({ fx, director }) {
   }, { passive: true });
 
   // With effects off the map holds still: one frame, redrawn only when the window changes.
-  const still = () => draw(0.55);
+  const still = () => draw(0.62, 0);
   let resizeTimer = 0;
   addEventListener('resize', () => {
     if (fx.on) return;

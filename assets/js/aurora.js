@@ -2,7 +2,7 @@
 // WebGL2 draws three curtains of light with a fragment shader.
 // Without WebGL2 the same idea is painted on a 2D canvas, softer and cheaper.
 
-const GREEN = [0.3, 1.0, 0.62];
+const GREEN = [0.24, 1.0, 0.56];  // mostly green, like the real thing over the north
 const VIOLET = [0.72, 0.42, 1.0];
 
 const VERT = `#version 300 es
@@ -52,7 +52,7 @@ vec3 curtain(vec2 uv, float aspect, float seed, float base, float tall, float pa
   float fine = 0.72 + 0.28 * noise(vec2(xs * 70.0, t * 1.1 + seed));
   float patchy = smoothstep(0.3, 0.62, fbm(vec2(xs * 0.5 + seed * 5.0, t * 0.06)));
   float k = clamp(y / (h * 2.4), 0.0, 1.0);
-  vec3 c = mix(uC1, uC2, smoothstep(0.12, 0.9, k));
+  vec3 c = mix(uC1, uC2, smoothstep(0.32, 1.0, k));
   c = mix(c, vec3(0.86, 1.0, 0.93), 0.35 * (1.0 - smoothstep(0.0, 0.05, y)));
   return c * body * rays * fine * patchy;
 }
@@ -65,7 +65,8 @@ void main() {
   col += 0.6 * curtain(uv, aspect, 9.3, 0.5, 0.24, 1.25);
   float side = 0.55 + 0.45 * smoothstep(0.0, 0.5, uv.x);
   float flare = 1.0 + 0.55 * exp(-pow((uv.x - uPtr) / 0.16, 2.0));
-  col *= (0.3 + 1.05 * uPower) * side * flare;
+  // almost nothing in the dark, a full sky when the aurora is up
+  col *= (0.02 + 1.3 * smoothstep(0.02, 1.0, uPower)) * side * flare;
   col = 1.0 - exp(-col * 1.7);
   // the light parts around the words, so the copy always has contrast
   float inX = smoothstep(uSafe.x - 0.1, uSafe.x + 0.02, uv.x) * (1.0 - smoothstep(uSafe.z - 0.02, uSafe.z + 0.1, uv.x));
@@ -198,7 +199,7 @@ function flatPainter(canvas) {
       bctx.globalAlpha = 1;
       bctx.clearRect(0, 0, bw, bh);
       bctx.globalCompositeOperation = 'lighter';
-      const gain = 0.35 + 1.0 * power;
+      const gain = 0.03 + 1.25 * smooth(0.02, 1, power);
       for (let k = 0; k < 3; k++) {
         const sp = PACE[k];
         for (let x = 0; x < bw; x++) {
@@ -270,7 +271,7 @@ export function initAurora({ fx, director }) {
     raf = requestAnimationFrame(frame);
     const dt = Math.min(0.1, Math.max(0, (now - last) / 1000));
     last = now;
-    time += dt;
+    time += dt * (1 + 10 * director.state.warp); // "pass time" makes the sky race
     const aim = now - ptrAt > 3000 ? 0.62 + 0.26 * Math.sin(time * 0.13) : ptrAim;
     ptr += (aim - ptr) * (1 - Math.pow(0.9, dt * 60));
     paint();
